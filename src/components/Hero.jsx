@@ -44,20 +44,20 @@ const Hero = () => {
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
-            <a
-              href="/create"
+            <Navlink
+              to="/create"
               icon={ArrowRight}
               className="rounded-full bg-[#9c673f] px-8 py-3 text-white transition-all duration-300 hover:-translate-y-1 hover:bg-[#8B5E3C] hover:shadow-2xl"
             >
               Explore Collection
-            </a>
+            </Navlink>
 
-            <a
-              href="/contact"
+            <Navlink
+              to="/contact"
               className="rounded-full border border-white/30 bg-white/10 px-8 py-3 font-medium text-white backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 hover:border-[#D8BE8A] hover:bg-white hover:text-[#2D2D2D] hover:shadow-xl"
             >
               Contact Us
-            </a>
+            </Navlink>
           </div>
         </motion.div>
       </div>
