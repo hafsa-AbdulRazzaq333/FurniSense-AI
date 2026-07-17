@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { ArrowUpRight, Mail } from "lucide-react";
 
 const links = [
@@ -42,7 +42,7 @@ export default function Footer() {
               </h2>
             </div>
 
-            <Navlink
+            <NavLink
               to="/contact"
               className="group flex w-fit items-center gap-3 rounded-full border border-[#E8DED3] bg-[#F8F5F0] px-6 py-4 text-[#2D2D2D] transition-all duration-300 hover:bg-[#8B5E3C] hover:text-white"
             >
@@ -54,7 +54,7 @@ export default function Footer() {
                 size={17}
                 className="transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
               />
-            </Navlink>
+            </NavLink>
           </div>
 
           {/* Bottom */}
@@ -76,13 +76,13 @@ export default function Footer() {
 
               <div className="mt-4 flex flex-wrap gap-x-6 gap-y-3">
                 {links.map((item) => (
-                  <Navlink
+                  <NavLink
                     key={item.name}
                     to={item.path}
                     className="transition text-[#5F5F5F] hover:text-[#8B5E3C]"
                   >
                     {item.name}
-                  </Navlink>
+                  </NavLink>
                 ))}
               </div>
             </div>
