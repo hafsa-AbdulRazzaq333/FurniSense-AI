@@ -41,20 +41,6 @@ export default function Footer() {
                 <span className="text-[#8B5E3C]">Sense</span>
               </h2>
             </div>
-
-            <a
-              href="/contact"
-              className="group flex w-fit items-center gap-3 rounded-full border border-[#E8DED3] bg-[#F8F5F0] px-6 py-4 text-[#2D2D2D] transition-all duration-300 hover:bg-[#8B5E3C] hover:text-white"
-            >
-              <Mail size={18} />
-
-              <span className="font-medium">Get In Touch</span>
-
-              <ArrowUpRight
-                size={17}
-                className="transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
-              />
-            </a>
           </div>
 
           {/* Bottom */}
