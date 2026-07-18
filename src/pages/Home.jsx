@@ -23,7 +23,8 @@ import Cta from "../components/Cta";
 
 const Home = () => {
   return (
-    <div id="home">
+    // FIXED: w-full aur overflow-x-hidden ko yahan main home wrapper div par lagaya hai
+    <div id="home" className="w-full min-h-screen overflow-x-hidden block">
       <Navbar />
       <Hero />
       <WhatCanCreate />
@@ -31,7 +32,6 @@ const Home = () => {
       <HowItWorks />
       <DesignShowcase />
       <Cta />
-      {/* <Footer/> */}
     </div>
   );
 };
