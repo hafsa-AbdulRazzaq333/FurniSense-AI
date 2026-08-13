@@ -1,79 +1,98 @@
-// File Location: src/api/gemini.js
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-/**
- * 1. Single Image Generator (Pollinations AI + Base64)
- */
+// Generates furniture images through our secure server-side API.
 export async function generateImages(prompt) {
   try {
     const searchPrompt = prompt || "modern luxury furniture";
-    const uniqueSeed = Math.floor(Math.random() * 999999) + Date.now();
 
-    // Strict clean prompt so we get real photorealistic furniture, absolutely NO abstract shapes or green colors
-    const cleanPrompt = `${searchPrompt}, photorealistic product design, high-end luxury furniture catalog, realistic studio lighting, clean solid background, 3d render style, strictly no green, 8k resolution`;
+    const cleanPrompt = `${searchPrompt},
+photorealistic product design,
+high-end luxury furniture catalog,
+realistic studio lighting,
+clean solid background,
+3D render style,
+high detail,
+professional furniture photography,
+strictly no green,
+no people,
+no text,
+no watermark`;
 
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=800&height=800&nologo=true&seed=${uniqueSeed}`;
-
-    const response = await fetch(imageUrl);
-    if (!response.ok) throw new Error("Image download failed");
-
-    const blob = await response.blob();
-
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result); // Returns "data:image/jpeg;base64,..."
-      reader.onerror = () => reject(new Error("FileReader failed"));
-      reader.readAsDataURL(blob);
+    const response = await fetch("/api/generate-image", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: cleanPrompt,
+      }),
     });
 
-  } catch (error) {
-    console.error("Single image generation error:", error);
-    // Safe Unsplash fallback if everything fails
-    return "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800";
-  }
-}
+    const data = await response.json().catch(() => ({}));
 
-/**
- * 2. Multiple Image Generator (Specifically formatted to return an array of Base64 images)
- */
-export async function generateMultipleImages(promptObjects) {
-  try {
-    const results = [];
+    if (!response.ok) {
+      const error = new Error(
+        data?.message || "Image generation failed."
+      );
 
-    for (let i = 0; i < promptObjects.length; i++) {
-      const itemObj = promptObjects[i];
-      const itemName = itemObj && typeof itemObj === 'object' ? (itemObj.name || `Item ${i + 1}`) : "Furniture Item";
-      const itemPrompt = itemObj && typeof itemObj === 'object' ? itemObj.prompt : itemObj;
+      error.code = data?.error || "IMAGE_GENERATION_FAILED";
+      error.status = response.status;
 
-      console.log(`Generating unique base64 for ${itemName}`);
-
-      try {
-        const base64Data = await generateImages(itemPrompt);
-        results.push({
-          name: itemName,
-          images: [base64Data] // Wrapped in array to match exactly what frontend expects
-        });
-      } catch (err) {
-        console.error(`Failed to generate ${itemName}:`, err);
-        results.push({
-          name: itemName,
-          images: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800"]
-        });
-      }
-
-      if (i < promptObjects.length - 1) {
-        await delay(800); // 800ms delay to keep requests safe
-      }
+      throw error;
     }
 
-    return results;
+    if (!data?.image) {
+      throw new Error("No image was returned by the image service.");
+    }
+
+    return data.image;
   } catch (error) {
-    console.error("Batch image generation failed entirely:", error);
-    return promptObjects.map((itemObj, idx) => ({
-      name: itemObj && typeof itemObj === 'object' ? itemObj.name : `Item ${idx + 1}`,
-      images: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800"]
-    }));
+    console.error("Single image generation error:", error);
+    throw error;
   }
 }
 
+
+// Generates multiple requested furniture images one by one.
+export async function generateMultipleImages(promptObjects) {
+  const results = [];
+
+  if (!Array.isArray(promptObjects) || promptObjects.length === 0) {
+    return results;
+  }
+
+  for (let i = 0; i < promptObjects.length; i++) {
+    const itemObj = promptObjects[i];
+
+    const itemName =
+      itemObj && typeof itemObj === "object"
+        ? itemObj.name || `Item ${i + 1}`
+        : `Furniture Item ${i + 1}`;
+
+    const itemPrompt =
+      itemObj && typeof itemObj === "object"
+        ? itemObj.prompt
+        : itemObj;
+
+    try {
+      console.log(`Generating image for ${itemName}...`);
+
+      const image = await generateImages(itemPrompt);
+
+      results.push({
+        name: itemName,
+        images: [image],
+      });
+    } catch (error) {
+      console.error(`Failed to generate ${itemName}:`, error);
+
+      // Stop the batch when the API reports a limit or service failure.
+      throw error;
+    }
+
+    // Adds a short gap between image requests.
+    if (i < promptObjects.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+    }
+  }
+
+  return results;
+}
