@@ -1,6 +1,4 @@
 // Configuration constants for the AI Furniture Generator
-export const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-export const GEMINI_IMAGE_MODEL = 'imagen-3.0-generate-002';
 export const MAX_GENERATION_ATTEMPTS = 3;
 
 // Default generation quality settings
